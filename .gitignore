@@ -1,5 +1,17 @@
+# Thư mục chứa thư viện (Rất nặng, không bao giờ push lên Git)
 node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# File chứa mật khẩu, key bí mật (Không được lộ)
 .env
-.DS_Store
+backend/.env
+frontend/.env
+
+# Thư mục build của Frontend
 dist/
 build/
+
+# File hệ điều hành sinh ra tự động
+.DS_Store
+Thumbs.db
