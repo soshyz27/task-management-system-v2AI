@@ -2,11 +2,31 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config(); // Đảm bảo các biến môi trường từ .env được nạp đầu tiên
 
+//Import bộ định tuyến Auth ---
+const authRoutes = require("./routes/authRoutes");
+
 const app = express();
 
 // --- 1. Cấu hình Middleware hệ thống ---
 app.use(cors()); // Cho phép Frontend truy cập API từ các port khác nhau
 app.use(express.json()); // Cho phép Express đọc và hiểu dữ liệu JSON gửi lên từ client (req.body)
+
+// ---  Import người gác cổng ---
+const authenticate = require("./middleware/authMiddleware");
+
+// Đăng ký tuyến đường vào ứng dụng ---
+app.use("/api/auth", authRoutes);
+
+// --- [BỔ SUNG]: Tuyến đường được bảo vệ (Protected Route) ---
+app.get("/api/profile", authenticate, (req, res) => {
+  // Nhờ có middleware, thông tin user đã nằm sẵn trong req.user
+  res.status(200).json({
+    success: true,
+    message: "Bạn đã truy cập vào khu vực bảo mật thành công!",
+    user: req.user
+  });
+});
+
 
 // --- 2. Định nghĩa API kiểm tra trạng thái (Health Check) ---
 // API này giúp chúng ta biết Server có đang sống và hoạt động bình thường hay không
