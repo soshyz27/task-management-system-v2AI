@@ -4,6 +4,8 @@ require("dotenv").config(); // Đảm bảo các biến môi trường từ .env
 
 //Import bộ định tuyến Auth ---
 const authRoutes = require("./routes/authRoutes");
+// --- Import bộ định tuyến Task ---
+const taskRoutes = require("./routes/taskRoutes");
 
 const app = express();
 
@@ -16,8 +18,10 @@ const authenticate = require("./middleware/authMiddleware");
 
 // Đăng ký tuyến đường vào ứng dụng ---
 app.use("/api/auth", authRoutes);
+// --- Đăng ký cụm API tasks ---
+app.use("/api/tasks", taskRoutes);
 
-// --- [BỔ SUNG]: Tuyến đường được bảo vệ (Protected Route) ---
+// --- Tuyến đường được bảo vệ (Protected Route) ---
 app.get("/api/profile", authenticate, (req, res) => {
   // Nhờ có middleware, thông tin user đã nằm sẵn trong req.user
   res.status(200).json({
