@@ -2,6 +2,12 @@
 
 Ứng dụng quản lý công việc toàn diện (Fullstack) được thiết kế theo kiến trúc phân lớp sạch (Clean Layered Architecture), tích hợp cơ chế bảo mật xác thực tài khoản nghiêm ngặt chuẩn doanh nghiệp.
 
+## 🌐 Live Demo
+* **Frontend (Giao diện live):** (https://task-management-system-eight-rouge.vercel.app/)
+* **Backend API (Trạng thái hệ thống):** (https://task-management-system-sg0q.onrender.com/health)
+
+---
+
 ## 🌟 Tính Năng Cốt Lõi (Core Features)
 * **Xác thực người dùng (Authentication):** Đăng ký tài khoản (mã hóa mật khẩu `bcrypt`) và Đăng nhập cấp mã định danh bảo mật **JWT (Json Web Token)**.
 * **Người gác cổng hệ thống (Route Guard):** Bảo vệ API Backend và các tuyến đường Frontend bằng Middleware xác thực quyền.
