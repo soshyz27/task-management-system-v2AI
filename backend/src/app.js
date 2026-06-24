@@ -10,7 +10,14 @@ const taskRoutes = require("./routes/taskRoutes");
 const app = express();
 
 // --- 1. Cấu hình Middleware hệ thống ---
-app.use(cors()); // Cho phép Frontend truy cập API từ các port khác nhau
+app.use(cors({
+  origin: [
+    "http://localhost:5173",                             // Cho phép Frontend Local test máy bạn
+    "https://task-management-frontend-hieu.vercel.app" // [THAY BẰNG]: Đường link Vercel thật của bạn vừa nhận ở bước 8
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json()); // Cho phép Express đọc và hiểu dữ liệu JSON gửi lên từ client (req.body)
 
 // ---  Import người gác cổng ---
