@@ -8,6 +8,9 @@ function App() {
     return (
         <Router>
             <Routes>
+                {/* Thêm tuyến đường gốc: Mặc định đẩy về Login */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                
                 {/* Các tuyến đường công khai */}
                 <Route path="/login" element={<LoginPage />} />
                 {/* <Route path="/register" element={<RegisterPage />} /> */}
@@ -22,8 +25,8 @@ function App() {
                     }
                 />
 
-                {/* Tự động điều hướng về /dashboard nếu người dùng vào link lạ */}
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                {/* Tự động điều hướng về /login nếu người dùng nhập link linh tinh */}
+                <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
         </Router>
     );
