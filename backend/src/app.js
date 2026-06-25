@@ -13,9 +13,9 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://task-management-system-eight-rouge.vercel.app" // 
+    "https://task-management-system-eight-rouge.vercel.app" // Điền chính xác link Vercel này
   ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
