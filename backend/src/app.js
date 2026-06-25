@@ -13,7 +13,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",                             // Cho phép Frontend Local test máy bạn
-    "https://task-management-frontend-hieu.vercel.app" // [THAY BẰNG]: Đường link Vercel thật của bạn vừa nhận ở bước 8
+    "https://task-management-system-eight-rouge.vercel.app/"
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
