@@ -11,13 +11,13 @@ const app = express();
 
 // --- 1. Cấu hình Middleware hệ thống ---
 app.use(cors({
-  origin: "*",
-  // [
-  //   "http://localhost:5173",
-  //   "https://task-management-system-eight-rouge.vercel.app" // 
-  // ],
+  origin: [
+    "http://localhost:5173",
+    "https://task-management-system-eight-rouge.vercel.app" // 
+  ],
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
 app.use(express.json()); // Cho phép Express đọc và hiểu dữ liệu JSON gửi lên từ client (req.body)
 
