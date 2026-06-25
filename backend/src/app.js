@@ -11,9 +11,9 @@ const app = express();
 
 // --- 1. Cấu hình Middleware hệ thống ---
 app.use(cors({
-  origin: [
-    "http://localhost:5173",                             // Cho phép Frontend Local test máy bạn
-    "https://task-management-system-eight-rouge.vercel.app/"
+  origin: ["*"
+    // "http://localhost:5173",                             // Cho phép Frontend Local test máy bạn
+    // "https://task-management-system-eight-rouge.vercel.app/"
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
