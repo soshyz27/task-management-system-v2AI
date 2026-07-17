@@ -1,30 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import useAuth from "../hooks/useAuth";
+import useTheme from "../hooks/useTheme";
 import Alert from "../components/Alert";
 
 function LoginPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { login } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Hứng thông báo thành công từ trang Register chuyển sang
-  useEffect(() => {
-    if (location.state?.flashSuccess) {
-      setSuccessMessage(location.state.flashSuccess);
-      window.history.replaceState({}, document.title);
-      // Tự xóa sau 5 giây
-      const timer = setTimeout(() => setSuccessMessage(""), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -32,10 +21,12 @@ function LoginPage() {
 
     if (!email.trim()) {
       setError("Vui lòng nhập Email!");
+      setTimeout(() => setError(""), 2000);
       return;
     }
     if (!password) {
       setError("Vui lòng nhập Mật khẩu!");
+      setTimeout(() => setError(""), 2000);
       return;
     }
 
@@ -43,98 +34,106 @@ function LoginPage() {
       setLoading(true);
       const response = await api.post("/auth/login", { email, password });
       const { token, user: userData } = response.data;
-
       login(token, userData);
       navigate("/dashboard", {
-        state: {
-          flashSuccess: `🎉 Đăng nhập thành công! Chào mừng ${userData.username || "bạn"}`,
-        },
+        state: { flashSuccess: `🎉 Chào mừng ${userData.username}!` }
       });
     } catch (err) {
-      const apiMessage =
-        err.response?.data?.message ||
-        "Đăng nhập thất bại. Vui lòng kiểm tra lại!";
-      setError(apiMessage);
+      setError(err.response?.data?.message || "Đăng nhập thất bại!");
     } finally {
       setLoading(false);
     }
   };
 
-  const inputStyle = {
-    width: "100%",
-    padding: "10px 12px",
-    boxSizing: "border-box",
-    border: "1px solid #ccc",
-    borderRadius: "6px",
-    fontSize: "14px",
-    outline: "none",
-  };
-
-  const labelStyle = {
-    display: "block",
-    marginBottom: "6px",
-    fontWeight: "600",
-    fontSize: "14px",
-    color: "#444",
-  };
-
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#f0f2f5",
-      }}
-    >
-      <div
+    <div style={{
+      minHeight: "100vh",
+      backgroundColor: "var(--bg-primary)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "var(--transition)"
+    }}>
+      {/* Toggle theme ở góc trên phải */}
+      <button
+        onClick={toggleTheme}
         style={{
-          width: "100%",
-          maxWidth: "420px",
-          backgroundColor: "#fff",
-          borderRadius: "10px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          padding: "36px 32px",
+          position: "fixed", top: "16px", right: "16px",
+          padding: "6px 12px",
+          background: "var(--bg-secondary)",
+          border: `1px solid var(--border-color)`,
+          borderRadius: "20px",
+          cursor: "pointer",
+          fontSize: "16px",
+          color: "var(--text-primary)"
         }}
       >
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "28px" }}>
-          <h2 style={{ margin: "0 0 6px 0", fontSize: "24px", color: "#1a1a2e" }}>
-            Đăng Nhập Hệ Thống
-          </h2>
-          <p style={{ margin: 0, color: "#888", fontSize: "14px" }}>
-            Quản lý công việc cá nhân của bạn
-          </p>
-        </div>
+        {isDark ? "☀️ Light" : "🌙 Dark"}
+      </button>
 
-        {/* Alert thông báo */}
-        <Alert message={successMessage} type="success" />
+      <div style={{
+        width: "100%",
+        maxWidth: "400px",
+        padding: "30px",
+        backgroundColor: "var(--bg-card)",
+        borderRadius: "12px",
+        border: `1px solid var(--border-color)`,
+        boxShadow: "var(--shadow)",
+        margin: "20px"
+      }}>
+        <h2 style={{ margin: "0 0 6px 0", color: "var(--text-primary)", textAlign: "center" }}>
+          📋 Task Manager
+        </h2>
+        <p style={{ margin: "0 0 24px 0", color: "var(--text-muted)", textAlign: "center", fontSize: "14px" }}>
+          Đăng nhập để tiếp tục
+        </p>
+
         <Alert message={error} type="error" />
 
-        {/* Form */}
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: "16px" }}>
-            <label style={labelStyle}>Email</label>
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div>
+            <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)", fontWeight: "500" }}>
+              Email
+            </label>
             <input
               type="email"
-              placeholder="Nhập địa chỉ email..."
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
-              style={inputStyle}
+              style={{
+                width: "100%", padding: "10px 12px",
+                backgroundColor: "var(--bg-input)",
+                border: `1px solid var(--border-color)`,
+                borderRadius: "6px",
+                color: "var(--text-primary)",
+                fontSize: "14px",
+                outline: "none",
+                transition: "var(--transition)"
+              }}
             />
           </div>
 
-          <div style={{ marginBottom: "24px" }}>
-            <label style={labelStyle}>Mật khẩu</label>
+          <div>
+            <label style={{ display: "block", marginBottom: "5px", fontSize: "13px", color: "var(--text-secondary)", fontWeight: "500" }}>
+              Mật khẩu
+            </label>
             <input
               type="password"
-              placeholder="Nhập mật khẩu..."
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
-              style={inputStyle}
+              style={{
+                width: "100%", padding: "10px 12px",
+                backgroundColor: "var(--bg-input)",
+                border: `1px solid var(--border-color)`,
+                borderRadius: "6px",
+                color: "var(--text-primary)",
+                fontSize: "14px",
+                outline: "none",
+                transition: "var(--transition)"
+              }}
             />
           </div>
 
@@ -142,50 +141,17 @@ function LoginPage() {
             type="submit"
             disabled={loading}
             style={{
-              width: "100%",
-              padding: "12px",
-              backgroundColor: loading ? "#cccccc" : "#007BFF",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px",
-              fontSize: "15px",
-              fontWeight: "bold",
+              width: "100%", padding: "11px",
+              backgroundColor: loading ? "var(--text-muted)" : "var(--accent-blue)",
+              color: "#fff", border: "none", borderRadius: "6px",
               cursor: loading ? "not-allowed" : "pointer",
-              transition: "background-color 0.2s",
+              fontWeight: "bold", fontSize: "14px",
+              transition: "var(--transition)"
             }}
           >
-            {loading ? "Đang xác thực hệ thống..." : "Đăng Nhập"}
+            {loading ? "Đang xác thực..." : "Đăng Nhập"}
           </button>
         </form>
-
-        {/* Divider */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            margin: "20px 0",
-            gap: "10px",
-          }}
-        >
-          <div style={{ flex: 1, height: "1px", backgroundColor: "#e0e0e0" }} />
-          <span style={{ color: "#aaa", fontSize: "13px" }}>hoặc</span>
-          <div style={{ flex: 1, height: "1px", backgroundColor: "#e0e0e0" }} />
-        </div>
-
-        {/* Link đăng ký */}
-        <div style={{ textAlign: "center", fontSize: "14px", color: "#666" }}>
-          Chưa có tài khoản?{" "}
-          <Link
-            to="/register"
-            style={{
-              color: "#28a745",
-              textDecoration: "none",
-              fontWeight: "600",
-            }}
-          >
-            Đăng ký ngay
-          </Link>
-        </div>
       </div>
     </div>
   );

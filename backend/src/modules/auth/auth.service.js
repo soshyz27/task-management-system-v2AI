@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const userRepository = require("../repositories/userRepository");
+const userRepository = require("./auth.repository");
 
 /**
  * Logic Đăng ký tài khoản
@@ -40,11 +40,10 @@ async function login(email, password) {
 
   // 3. Tạo Token bảo mật JWT (Thời hạn 7 ngày như thiết kế blueprint)
   const token = jwt.sign(
-    { id: user.id, email: user.email },
+    { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
-
   // 4. Bảo mật: Xóa password khỏi object trước khi trả về cho Controller
   const userResponse = { ...user };
   delete userResponse.password;

@@ -1,13 +1,11 @@
-// Tận dụng trạng thái loading và isAuthenticated từ 
-// Context để tránh việc redirect nhầm khi React chưa đọc xong localStorage.
 import React from "react";
 import { Navigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
-function ProtectedRoute({ children }) {
-    const { isAuthenticated, loading } = useAuth();
+function ProtectedRoute({ children, requiredRole }) {
+    const { isAuthenticated, loading, user } = useAuth();
 
-    // Chờ Context API đồng bộ dữ liệu từ localStorage xong xuôi
+    // 1. Chờ Context API đồng bộ dữ liệu từ localStorage xong xuôi (Giữ giao diện đẹp của bạn)
     if (loading) {
         return (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -16,11 +14,18 @@ function ProtectedRoute({ children }) {
         );
     }
 
-    // Nếu không có quyền truy cập, đẩy ngay về trang Login
+    // 2. Nếu không đăng nhập, đẩy ngay về trang Login
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
 
+    // 3. SPRINT 2 (RBAC): Nếu route yêu cầu quyền cụ thể (ví dụ: 'admin') mà user không đáp ứng được
+    if (requiredRole && user?.role !== requiredRole) {
+        // Đẩy về dashboard hoặc trang thông báo từ chối truy cập (403 Unauthorized)
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    // 4. Nếu thỏa mãn tất cả điều kiện, cho phép vào trang
     return children;
 }
 

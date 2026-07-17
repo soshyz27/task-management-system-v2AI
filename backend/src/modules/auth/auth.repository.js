@@ -1,4 +1,4 @@
-const pool = require("../config/database");
+const pool = require("../../config/database");
 
 /**
  * Tìm kiếm người dùng dựa vào email
@@ -7,11 +7,9 @@ const pool = require("../config/database");
  */
 async function findByEmail(email) {
   const result = await pool.query(
-    `
-    SELECT id, username, email, password, created_at
-    FROM users
-    WHERE email = $1
-    `,
+    `SELECT id, username, email, password, role, created_at
+     FROM users
+     WHERE email = $1`,
     [email]
   );
   return result.rows[0];

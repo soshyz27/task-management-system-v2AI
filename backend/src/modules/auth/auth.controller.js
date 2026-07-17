@@ -1,4 +1,4 @@
-const authService = require("../services/authService");
+const authService = require("./auth.service");
 
 /**
  * Điều phối Đăng ký tài khoản

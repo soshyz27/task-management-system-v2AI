@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const authController = require("../controllers/authController");
+const authController = require("./auth.controller");
 
 // Định tuyến cho tính năng Đăng ký
 router.post("/register", authController.register);

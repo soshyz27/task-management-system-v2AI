@@ -1,61 +1,91 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config(); // Đảm bảo các biến môi trường từ .env được nạp đầu tiên
+const http = require("http");
+const { Server } = require("socket.io");
+const path = require("path");
+require("dotenv").config();
 
-//Import bộ định tuyến Auth ---
-const authRoutes = require("./routes/authRoutes");
-// --- Import bộ định tuyến Task ---
-const taskRoutes = require("./routes/taskRoutes");
+const authRoutes = require("./modules/auth/auth.route");
+const taskRoutes = require("./modules/task/task.route");
+const userRoutes = require("./modules/user/user.route");
+const profileRoutes = require("./modules/user/profile.route");
+const notificationRoutes = require("./modules/notification/notification.route");
+const aiRoutes = require("./modules/ai/ai.route");
+console.log("✅ AI routes loaded");
+
+const { checkDeadlineReminders } = require("./services/reminderService");
 
 const app = express();
+const server = http.createServer(app);
 
-// --- 1. Cấu hình Middleware hệ thống ---
+// --- Cấu hình CORS chung ở một nơi ---
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  "https://task-management-system-eight-rouge.vercel.app"
+];
+
+// Khởi tạo Socket.IO với config CORS
+const io = new Server(server, {
+  cors: {
+    origin: ALLOWED_ORIGINS,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+  }
+});
+
+// --- Middleware ---
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://task-management-system-eight-rouge.vercel.app" // Điền chính xác link Vercel này
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  origin: ALLOWED_ORIGINS,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
-app.use(express.json()); // Cho phép Express đọc và hiểu dữ liệu JSON gửi lên từ client (req.body)
+app.use(express.json());
 
-// ---  Import người gác cổng ---
-const authenticate = require("./middleware/authMiddleware");
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// Đăng ký tuyến đường vào ứng dụng ---
+// Gắn io vào req
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+// --- Routes ---
 app.use("/api/auth", authRoutes);
-// --- Đăng ký cụm API tasks ---
 app.use("/api/tasks", taskRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/profile", profileRoutes); // Đã bao gồm các route bên trong profile.route.js
 
-// --- Tuyến đường được bảo vệ (Protected Route) ---
-app.get("/api/profile", authenticate, (req, res) => {
-  // Nhờ có middleware, thông tin user đã nằm sẵn trong req.user
-  res.status(200).json({
-    success: true,
-    message: "Bạn đã truy cập vào khu vực bảo mật thành công!",
-    user: req.user
-  });
-});
-
-
-// --- 2. Định nghĩa API kiểm tra trạng thái (Health Check) ---
-// API này giúp chúng ta biết Server có đang sống và hoạt động bình thường hay không
 app.get("/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Server is running perfectly!",
-    timestamp: new Date()
+  res.status(200).json({ success: true, message: "Server is running perfectly!", timestamp: new Date() });
+});
+
+// --- Socket.IO connection handling ---
+io.on("connection", (socket) => {
+  console.log(`🔌 Client kết nối: ${socket.id}`);
+
+  socket.on("join", (userId) => {
+    socket.join(`user_${userId}`);
+    console.log(`User ${userId} đã join room user_${userId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`❌ Client ngắt kết nối: ${socket.id}`);
   });
 });
 
-// --- 3. Kích hoạt Server lắng nghe các yêu cầu ---
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+checkDeadlineReminders(io);
+
+const SIX_HOURS = 6 * 60 * 60 * 1000;
+setInterval(() => checkDeadlineReminders(io), SIX_HOURS);
+console.log("⏰ Deadline reminder service đã khởi động");
+
+server.listen(PORT, () => {
   console.log(`=============================================`);
   console.log(`🚀 Server đang chạy thành công tại Port: ${PORT}`);
-  console.log(`👉 API Health Check: http://localhost:${PORT}/health`);
+  console.log(`🔌 Socket.IO đã sẵn sàng`);
   console.log(`=============================================`);
 });
