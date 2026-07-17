@@ -78,9 +78,6 @@ async function deleteTask(taskId, userId) {
  * Lấy tasks có pagination + filter
  */
 async function getTasksPaginated(userId, role, page, limit, priority, search = "", sortBy = "priority", sortOrder = "asc") {
-  if (role === "admin") {
-    return await taskRepository.getAllTasksPaginated(page, limit, priority, search, sortBy, sortOrder);
-  }
   return await taskRepository.getTasksByUserPaginated(userId, page, limit, priority, search, sortBy, sortOrder);
 }
 

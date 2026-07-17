@@ -1,9 +1,11 @@
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import MainLayout from "../layouts/MainLayout";
 import Alert from "../components/Alert";
 
 function AdminDashboardPage() {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [activeTab, setActiveTab] = useState("users");
@@ -64,6 +66,26 @@ function AdminDashboardPage() {
   return (
     <MainLayout>
       <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+        
+        {/* Header với nút Back */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+          <button
+            onClick={() => navigate("/dashboard")}
+            style={{
+              padding: "6px 14px",
+              background: "var(--bg-secondary)",
+              border: `1px solid var(--border-color)`,
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontSize: "13px",
+              color: "var(--text-primary)"
+            }}
+          >
+            ← Dashboard
+          </button>
+          <h2 style={{ margin: 0, color: "var(--text-primary)" }}>🛡️ Admin Dashboard</h2>
+        </div>
+
         <h2>🛡️ Admin Dashboard</h2>
 
         {/* Stats */}
