@@ -120,7 +120,7 @@ function LoginPage() {
             </label>
             <input
               type="password"
-              placeholder="••••••••"
+              placeholder="Nhập mật khẩu"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
@@ -151,6 +151,27 @@ function LoginPage() {
           >
             {loading ? "Đang xác thực..." : "Đăng Nhập"}
           </button>
+
+          {/* Phần Đăng ký mới được thêm vào */}
+          <p style={{
+            textAlign: "center",
+            margin: "16px 0 0 0",
+            fontSize: "14px",
+            color: "var(--text-muted)"
+          }}>
+            Chưa có tài khoản?{" "}
+            <span
+              onClick={() => navigate("/register")}
+              style={{
+                color: "var(--accent-blue)",
+                cursor: "pointer",
+                fontWeight: "500",
+                textDecoration: "underline"
+              }}
+            >
+              Đăng ký ngay
+            </span>
+          </p>
         </form>
       </div>
     </div>

@@ -1,63 +1,45 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import useTheme from "../hooks/useTheme";
 import Alert from "../components/Alert";
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const { isDark, toggleTheme } = useTheme();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
 
-    // --- FRONTEND VALIDATION ---
-    if (!username.trim()) {
-      setError("Vui lòng nhập Tên người dùng!");
-      return;
-    }
-    if (username.trim().length < 3) {
-      setError("Tên người dùng phải có ít nhất 3 ký tự!");
-      return;
-    }
-    if (!email.trim()) {
-      setError("Vui lòng nhập Email!");
-      return;
-    }
-    if (!password) {
-      setError("Vui lòng nhập Mật khẩu!");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Mật khẩu phải có ít nhất 6 ký tự!");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Mật khẩu xác nhận không khớp!");
-      return;
-    }
+    // Validate
+    if (!username.trim()) return setError("Vui lòng nhập Username!");
+    if (username.trim().length < 3) return setError("Username phải có ít nhất 3 ký tự!");
+    if (!email.trim()) return setError("Vui lòng nhập Email!");
+    if (!password) return setError("Vui lòng nhập Mật khẩu!");
+    if (password.length < 6) return setError("Mật khẩu phải có ít nhất 6 ký tự!");
+    if (password !== confirmPassword) return setError("Mật khẩu xác nhận không khớp!");
 
-    // --- GỌI API ĐĂNG KÝ ---
     try {
       setLoading(true);
       await api.post("/auth/register", { username, email, password });
 
-      // Chuyển sang trang Login kèm thông báo thành công
-      navigate("/login", {
-        state: {
-          flashSuccess: "🎉 Đăng ký tài khoản thành công! Vui lòng đăng nhập."
-        }
-      });
+      setSuccess("Đăng ký thành công! Đang chuyển sang trang đăng nhập...");
+      setTimeout(() => {
+        navigate("/login", {
+          state: { flashSuccess: "🎉 Đăng ký thành công! Vui lòng đăng nhập." }
+        });
+      }, 1500);
     } catch (err) {
-      const apiMessage =
-        err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại!";
-      setError(apiMessage);
+      setError(err.response?.data?.message || "Đăng ký thất bại, thử lại sau!");
     } finally {
       setLoading(false);
     }
@@ -66,60 +48,75 @@ function RegisterPage() {
   const inputStyle = {
     width: "100%",
     padding: "10px 12px",
-    boxSizing: "border-box",
-    border: "1px solid #ccc",
+    backgroundColor: "var(--bg-input)",
+    border: `1px solid var(--border-color)`,
     borderRadius: "6px",
+    color: "var(--text-primary)",
     fontSize: "14px",
     outline: "none",
-    transition: "border-color 0.2s",
+    transition: "var(--transition)",
+    boxSizing: "border-box"
   };
 
   const labelStyle = {
     display: "block",
-    marginBottom: "6px",
-    fontWeight: "600",
-    fontSize: "14px",
-    color: "#444",
+    marginBottom: "5px",
+    fontSize: "13px",
+    color: "var(--text-secondary)",
+    fontWeight: "500"
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#f0f2f5",
-      }}
-    >
-      <div
+    <div style={{
+      minHeight: "100vh",
+      backgroundColor: "var(--bg-primary)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "var(--transition)"
+    }}>
+      {/* Toggle theme */}
+      <button
+        onClick={toggleTheme}
         style={{
-          width: "100%",
-          maxWidth: "420px",
-          backgroundColor: "#fff",
-          borderRadius: "10px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          padding: "36px 32px",
+          position: "fixed", top: "16px", right: "16px",
+          padding: "6px 12px",
+          background: "var(--bg-secondary)",
+          border: `1px solid var(--border-color)`,
+          borderRadius: "20px",
+          cursor: "pointer",
+          fontSize: "16px",
+          color: "var(--text-primary)"
         }}
       >
+        {isDark ? "☀️ Light" : "🌙 Dark"}
+      </button>
+
+      <div style={{
+        width: "100%",
+        maxWidth: "420px",
+        padding: "30px",
+        backgroundColor: "var(--bg-card)",
+        borderRadius: "12px",
+        border: `1px solid var(--border-color)`,
+        boxShadow: "var(--shadow)",
+        margin: "20px"
+      }}>
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "28px" }}>
-          <h2 style={{ margin: "0 0 6px 0", fontSize: "24px", color: "#1a1a2e" }}>
-            Tạo tài khoản mới
-          </h2>
-          <p style={{ margin: 0, color: "#888", fontSize: "14px" }}>
-            Đăng ký để bắt đầu quản lý công việc
-          </p>
-        </div>
+        <h2 style={{ margin: "0 0 6px 0", color: "var(--text-primary)", textAlign: "center" }}>
+          📋 Task Manager
+        </h2>
+        <p style={{ margin: "0 0 24px 0", color: "var(--text-muted)", textAlign: "center", fontSize: "14px" }}>
+          Tạo tài khoản mới
+        </p>
 
-        {/* Alert lỗi */}
         <Alert message={error} type="error" />
+        <Alert message={success} type="success" />
 
-        {/* Form */}
-        <form onSubmit={handleRegister}>
+        <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {/* Username */}
-          <div style={{ marginBottom: "16px" }}>
-            <label style={labelStyle}>Tên người dùng</label>
+          <div>
+            <label style={labelStyle}>Username</label>
             <input
               type="text"
               placeholder="Nhập tên hiển thị..."
@@ -127,90 +124,109 @@ function RegisterPage() {
               onChange={(e) => setUsername(e.target.value)}
               disabled={loading}
               style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = "var(--accent-blue)"}
+              onBlur={(e) => e.target.style.borderColor = "var(--border-color)"}
             />
+            {username && username.trim().length < 3 && (
+              <p style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--accent-red)" }}>
+                Ít nhất 3 ký tự
+              </p>
+            )}
           </div>
 
           {/* Email */}
-          <div style={{ marginBottom: "16px" }}>
+          <div>
             <label style={labelStyle}>Email</label>
             <input
               type="email"
-              placeholder="Nhập địa chỉ email..."
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
               style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = "var(--accent-blue)"}
+              onBlur={(e) => e.target.style.borderColor = "var(--border-color)"}
             />
           </div>
 
           {/* Password */}
-          <div style={{ marginBottom: "16px" }}>
+          <div>
             <label style={labelStyle}>Mật khẩu</label>
             <input
               type="password"
-              placeholder="Tối thiểu 6 ký tự..."
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
               style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = "var(--accent-blue)"}
+              onBlur={(e) => e.target.style.borderColor = "var(--border-color)"}
             />
+            {password && password.length < 6 && (
+              <p style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--accent-red)" }}>
+                Ít nhất 6 ký tự
+              </p>
+            )}
           </div>
 
           {/* Confirm Password */}
-          <div style={{ marginBottom: "24px" }}>
+          <div>
             <label style={labelStyle}>Xác nhận mật khẩu</label>
             <input
               type="password"
-              placeholder="Nhập lại mật khẩu..."
+              placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={loading}
               style={inputStyle}
+              onFocus={(e) => e.target.style.borderColor = "var(--accent-blue)"}
+              onBlur={(e) => e.target.style.borderColor = "var(--border-color)"}
             />
+            {confirmPassword && password !== confirmPassword && (
+              <p style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--accent-red)" }}>
+                Mật khẩu không khớp
+              </p>
+            )}
           </div>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
             style={{
-              width: "100%",
-              padding: "12px",
-              backgroundColor: loading ? "#cccccc" : "#28a745",
-              color: "#fff",
-              border: "none",
-              borderRadius: "6px",
-              fontSize: "15px",
-              fontWeight: "bold",
+              width: "100%", padding: "11px",
+              backgroundColor: loading ? "var(--text-muted)" : "var(--accent-green)",
+              color: "#fff", border: "none", borderRadius: "6px",
               cursor: loading ? "not-allowed" : "pointer",
-              transition: "background-color 0.2s",
+              fontWeight: "bold", fontSize: "14px",
+              transition: "var(--transition)",
+              marginTop: "4px"
             }}
           >
-            {loading ? "Đang tạo tài khoản..." : "Đăng Ký"}
+            {loading ? "Đang đăng ký..." : "✅ Đăng Ký"}
           </button>
         </form>
 
-        {/* Link quay lại Login */}
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: "20px",
-            fontSize: "14px",
-            color: "#666",
-          }}
-        >
+        {/* Link về Login */}
+        <p style={{
+          textAlign: "center",
+          margin: "16px 0 0 0",
+          fontSize: "14px",
+          color: "var(--text-muted)"
+        }}>
           Đã có tài khoản?{" "}
-          <Link
-            to="/login"
+          <span
+            onClick={() => navigate("/login")}
             style={{
-              color: "#007BFF",
-              textDecoration: "none",
-              fontWeight: "600",
+              color: "var(--accent-blue)",
+              cursor: "pointer",
+              fontWeight: "500",
+              textDecoration: "underline"
             }}
           >
-            Đăng nhập ngay
-          </Link>
-        </div>
+            Đăng nhập
+          </span>
+        </p>
       </div>
     </div>
   );
